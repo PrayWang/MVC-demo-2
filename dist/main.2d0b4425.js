@@ -174,6 +174,11 @@ module.hot.accept(reloadCSS);
 var reloadCSS = require('_css_loader');
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
+},{"_css_loader":"C:\\Users\\dragon\\AppData\\Local\\Yarn\\Data\\global\\node_modules\\parcel\\src\\builtins\\css-loader.js"}],"app1.css":[function(require,module,exports) {
+
+var reloadCSS = require('_css_loader');
+module.hot.dispose(reloadCSS);
+module.hot.accept(reloadCSS);
 },{"_css_loader":"C:\\Users\\dragon\\AppData\\Local\\Yarn\\Data\\global\\node_modules\\parcel\\src\\builtins\\css-loader.js"}],"C:\\Users\\dragon\\AppData\\Local\\Yarn\\Data\\global\\node_modules\\process\\browser.js":[function(require,module,exports) {
 
 // shim for using process in browser
@@ -11247,60 +11252,91 @@ if ( typeof noGlobal === "undefined" ) {
 return jQuery;
 } );
 
-},{"process":"C:\\Users\\dragon\\AppData\\Local\\Yarn\\Data\\global\\node_modules\\process\\browser.js"}],"app1.css":[function(require,module,exports) {
-
-var reloadCSS = require('_css_loader');
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"_css_loader":"C:\\Users\\dragon\\AppData\\Local\\Yarn\\Data\\global\\node_modules\\parcel\\src\\builtins\\css-loader.js"}],"app1.js":[function(require,module,exports) {
+},{"process":"C:\\Users\\dragon\\AppData\\Local\\Yarn\\Data\\global\\node_modules\\process\\browser.js"}],"app1.js":[function(require,module,exports) {
 'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+require('./app1.css');
 
 var _jquery = require('jquery');
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
-require('./app1.css');
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-console.log(_jquery2.default);
+var eventBus = (0, _jquery2.default)(window);
+// 数据相关都放到m
+var m = {
+  data: {
+    n: parseInt(localStorage.getItem('n'))
+  },
+  create: function create() {},
+  delete: function _delete() {},
+  update: function update(data) {
+    Object.assign(m.data, data);
+    eventBus.trigger('m:updated');
+    localStorage.setItem('n', m.data.n);
+  },
+  get: function get() {}
+};
+// 视图相关都放到v
+var v = {
+  el: null,
+  html: '\n  <div>\n    <div class="output">\n      <span id="number">{{n}}</span>\n    </div>\n    <div class="actions">\n      <button id="add1">+1</button>\n      <button id="minus1">-1</button>\n      <button id="mul2">*2</button>\n      <button id="divide2">\xF72</button>\n    </div>\n  </div>\n',
+  init: function init(container) {
+    v.el = (0, _jquery2.default)(container);
+  },
+  render: function render(n) {
+    if (v.el.children.length !== 0) v.el.empty();
+    (0, _jquery2.default)(v.html.replace('{{n}}', n)).appendTo(v.el);
+  }
+};
+// 其他都c
+var c = {
+  init: function init(container) {
+    v.init(container);
+    v.render(m.data.n); // view = render(data)
+    c.autoBindEvents();
+    eventBus.on('m:updated', function () {
+      console.log('here');
+      v.render(m.data.n);
+    });
+  },
 
-var $button1 = (0, _jquery2.default)('#add1');
-var $button2 = (0, _jquery2.default)('#minus1');
-var $button3 = (0, _jquery2.default)('#mul2');
-var $button4 = (0, _jquery2.default)('#divide2');
-var $number = (0, _jquery2.default)('#number');
-var n = localStorage.getItem('n');
-$number.text(n || 100);
+  events: {
+    'click #add1': 'add',
+    'click #minus1': 'minus',
+    'click #mul2': 'mul',
+    'click #divide2': 'div'
+  },
+  add: function add() {
+    m.update({ n: m.data.n + 1 });
+  },
+  minus: function minus() {
+    m.update({ n: m.data.n - 1 });
+  },
+  mul: function mul() {
+    m.update({ n: m.data.n * 2 });
+  },
+  div: function div() {
+    m.update({ n: m.data.n / 2 });
+  },
+  autoBindEvents: function autoBindEvents() {
+    for (var key in c.events) {
+      var value = c[c.events[key]];
+      var spaceIndex = key.indexOf(' ');
+      var part1 = key.slice(0, spaceIndex);
+      var part2 = key.slice(spaceIndex + 1); //不要前面的空格
+      v.el.on(part1, part2, value);
+    }
+  }
+};
 
-$button1.on("click", function () {
-    var n = parseInt($number.text());
-    n += 1;
-    localStorage.setItem('n', n);
-    $number.text(n);
-});
-
-$button2.on("click", function () {
-    var n = parseInt($number.text());
-    n -= 1;
-    localStorage.setItem('n', n);
-    $number.text(n);
-});
-
-$button3.on("click", function () {
-    var n = parseInt($number.text());
-    n *= 2;
-    localStorage.setItem('n', n);
-    $number.text(n);
-});
-
-$button4.on("click", function () {
-    var n = parseInt($number.text());
-    n /= 2;
-    localStorage.setItem('n', n);
-    $number.text(n);
-});
-},{"jquery":"..\\node_modules\\jquery\\dist\\jquery.js","./app1.css":"app1.css"}],"app2.css":[function(require,module,exports) {
+exports.default = c;
+},{"./app1.css":"app1.css","jquery":"..\\node_modules\\jquery\\dist\\jquery.js"}],"app2.css":[function(require,module,exports) {
 
 var reloadCSS = require('_css_loader');
 module.hot.dispose(reloadCSS);
@@ -11308,29 +11344,79 @@ module.hot.accept(reloadCSS);
 },{"_css_loader":"C:\\Users\\dragon\\AppData\\Local\\Yarn\\Data\\global\\node_modules\\parcel\\src\\builtins\\css-loader.js"}],"app2.js":[function(require,module,exports) {
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+require('./app2.css');
+
 var _jquery = require('jquery');
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
-require('./app2.css');
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var $tabBar = (0, _jquery2.default)('#app2 .tabBar');
-var $tabContent = (0, _jquery2.default)('#app2 .tabContent');
-var index = localStorage.getItem('app2-index') || 0;
+var eventBus = (0, _jquery2.default)(window);
 
-$tabBar.on('click', 'li', function (e) {
-    var $li = (0, _jquery2.default)(e.currentTarget);
-    $li.addClass('selected').siblings().removeClass('selected');
-    var index = $li.index();
-    localStorage.setItem('app2-index', index);
-    console.log(index);
-    $tabContent.children().eq(index).addClass('active').siblings().removeClass('active');
-});
+var localKey = 'app2.index';
+var m = {
+  data: {
+    index: parseInt(localStorage.getItem(localKey)) || 0
+  },
+  create: function create() {},
+  delete: function _delete() {},
+  update: function update(data) {
+    Object.assign(m.data, data);
+    eventBus.trigger('m:updated');
+    localStorage.setItem('index', m.data.index);
+  },
+  get: function get() {}
+};
 
-$tabBar.children().eq(index).trigger('click');
-},{"jquery":"..\\node_modules\\jquery\\dist\\jquery.js","./app2.css":"app2.css"}],"app3.css":[function(require,module,exports) {
+var v = {
+  el: null,
+  html: function html(index) {
+    return '\n    <div>\n      <ol class="tabBar">\n        <li class="' + (index === 0 ? 'selected' : '') + '" data-index="0"><span>1111</span></li>\n        <li class="' + (index === 1 ? 'selected' : '') + '" data-index="1"><span>2222</span></li>\n      </ol>\n      <ol class="tabContent">\n        <li class="' + (index === 0 ? 'active' : '') + '">\u5185\u5BB91</li>\n        <li class="' + (index === 1 ? 'active' : '') + '">\u5185\u5BB92</li>\n      </ol>\n    </div>\n';
+  },
+  init: function init(container) {
+    v.el = (0, _jquery2.default)(container);
+  },
+  render: function render(index) {
+    if (v.el.children.length !== 0) v.el.empty();
+    (0, _jquery2.default)(v.html(index)).appendTo(v.el);
+  }
+};
+
+var c = {
+  init: function init(container) {
+    v.init(container);
+    v.render(m.data.index); // view = render(data)
+    c.autoBindEvents();
+    eventBus.on('m:updated', function () {
+      v.render(m.data.index);
+    });
+  },
+
+  events: {
+    'click .tabBar li': 'x'
+  },
+  x: function x(e) {
+    var index = parseInt(e.currentTarget.dataset.index);
+    m.update({ index: index });
+  },
+  autoBindEvents: function autoBindEvents() {
+    for (var key in c.events) {
+      var value = c[c.events[key]];
+      var spaceIndex = key.indexOf(' ');
+      var part1 = key.slice(0, spaceIndex);
+      var part2 = key.slice(spaceIndex + 1);
+      v.el.on(part1, part2, value);
+    }
+  }
+};
+
+exports.default = c;
+},{"./app2.css":"app2.css","jquery":"..\\node_modules\\jquery\\dist\\jquery.js"}],"app3.css":[function(require,module,exports) {
 
 var reloadCSS = require('_css_loader');
 module.hot.dispose(reloadCSS);
@@ -11345,6 +11431,9 @@ var _jquery2 = _interopRequireDefault(_jquery);
 require('./app3.css');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var html = '\n<section id="app3">\n        <div class="square"></div>\n    </section>\n';
+var $element = (0, _jquery2.default)(html).appendTo((0, _jquery2.default)('body>.page'));
 
 var $square = (0, _jquery2.default)('.square');
 
@@ -11377,6 +11466,10 @@ require('./app4.css');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var html = '\n<section id="app4">\n        <div class="circle"></div>\n    </section>\n';
+
+var $element = (0, _jquery2.default)(html).appendTo((0, _jquery2.default)('body>.page'));
+
 var $circle = (0, _jquery2.default)('.circle');
 
 $circle.on('mouseenter', function () {
@@ -11391,13 +11484,22 @@ require('./reset.css');
 
 require('./global.css');
 
-require('./app1.js');
+var _app = require('./app1.js');
 
-require('./app2.js');
+var _app2 = _interopRequireDefault(_app);
+
+var _app3 = require('./app2.js');
+
+var _app4 = _interopRequireDefault(_app3);
 
 require('./app3.js');
 
 require('./app4.js');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_app2.default.init('#app1');
+_app4.default.init('#app2');
 },{"./reset.css":"reset.css","./global.css":"global.css","./app1.js":"app1.js","./app2.js":"app2.js","./app3.js":"app3.js","./app4.js":"app4.js"}],"C:\\Users\\dragon\\AppData\\Local\\Yarn\\Data\\global\\node_modules\\parcel\\src\\builtins\\hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -11427,7 +11529,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + '60920' + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + '59247' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 
